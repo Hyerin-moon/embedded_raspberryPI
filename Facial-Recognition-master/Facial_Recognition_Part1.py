@@ -23,37 +23,41 @@ def face_extractor(img):
     # cropped_face 리턴
     return cropped_face
 
+def take_pictures():
+    # 카메라 실행
+    cap = cv2.VideoCapture(0)
+    # 저장할 이미지 카운트 변수
+    count = 0
+    while True:
+        # 카메라로 부터 사진 1장 얻기
+        ret, frame = cap.read()
+        # 얼굴 감지 하여 얼굴만 가져오기
+        if face_extractor(frame) is not None:
+            count += 1
+            # 얼굴 이미지 크기를 200x200으로 조정
+            face = cv2.resize(face_extractor(frame), (200, 200))
+            # 조정된 이미지를 흑백으로 변환
+            face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
+            # faces폴더에 jpg파일로 저장
+            # ex > faces/user0.jpg   faces/user1.jpg ....
+            file_name_path = 'faces/user' + str(count) + '.jpg'
+            cv2.imwrite(file_name_path, face)
 
-# 카메라 실행
-cap = cv2.VideoCapture(0)
-# 저장할 이미지 카운트 변수
-count = 0
-while True:
-    # 카메라로 부터 사진 1장 얻기
-    ret, frame = cap.read()
-    # 얼굴 감지 하여 얼굴만 가져오기
-    if face_extractor(frame) is not None:
-        count += 1
-        # 얼굴 이미지 크기를 200x200으로 조정
-        face = cv2.resize(face_extractor(frame), (200, 200))
-        # 조정된 이미지를 흑백으로 변환
-        face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
-        # faces폴더에 jpg파일로 저장
-        # ex > faces/user0.jpg   faces/user1.jpg ....
-        file_name_path = 'faces/user' + str(count) + '.jpg'
-        cv2.imwrite(file_name_path, face)
+            # 화면에 얼굴과 현재 저장 개수 표시
+            cv2.putText(face, str(count), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
+            cv2.imshow('Face Cropper', face)
+        else:
+            print("Face not Found")
+            pass
 
-        # 화면에 얼굴과 현재 저장 개수 표시
-        cv2.putText(face, str(count), (50, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
-        cv2.imshow('Face Cropper', face)
-    else:
-        print("Face not Found")
-        pass
+        # 얼굴 사진 100장을 다 얻었거나, enter 키 누르면 종료
+        if cv2.waitKey(1) == 13 or count == 100:
+            break
 
-    # 얼굴 사진 100장을 다 얻었거나, enter 키 누르면 종료
-    if cv2.waitKey(1) == 13 or count == 100:
-        break
+    cap.release()
+    cv2.destroyAllWindows()
+    print('Colleting Samples Complete!!!')
 
-cap.release()
-cv2.destroyAllWindows()
-print('Colleting Samples Complete!!!')
+if __name__ == "__main__":
+    # 사진 저장할 이름을 넣어서 함수 호출
+    take_pictures()
